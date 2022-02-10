@@ -43,7 +43,7 @@ public class RobotMap {
     public static WPI_PigeonIMU  pidgey = new WPI_PigeonIMU(ConveyorMotor2);
 
     public static double heading;
-    public static double kP = 1;
+    public static double kP = 0;
     public static double testPrint1 = pidgey.getAngle();
     public static double testPrint2 = pidgey.getCompassHeading();
     public static double testPrint3 = pidgey.getYaw();

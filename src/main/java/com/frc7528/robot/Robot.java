@@ -61,6 +61,7 @@ public class Robot extends TimedRobot {
 	private double RAft;
 	private double LAft;
 	private boolean found;
+	private double target_angle=0;
 	UsbCamera cam0 = CameraServer.startAutomaticCapture(0);
 	MjpegServer switchCam = CameraServer.addSwitchedCamera("Camera");
 
@@ -113,6 +114,7 @@ public class Robot extends TimedRobot {
 		//Config inversion
 		m_leftFront.setInverted(false);
 		m_rightFront.setInverted(true);
+		m_rightAft.setInverted(true);
 
 		//C14.configFactoryDefault();
 		//C9.configFactoryDefault();
@@ -182,7 +184,6 @@ public class Robot extends TimedRobot {
 		m_drive.setDeadband(deadBandOptions.getSelected()); //Set deadband
 		limelightTable.getEntry("ledMode").setNumber(0);
 		System.out.println("yo");
-		heading = pidgey.getAngle();
 	}
 
 	//Teleop driving (Fine control and joystick control)
@@ -278,17 +279,51 @@ public class Robot extends TimedRobot {
 		} else {
 
 			//Pidgey control
+			/*
 			if (m_joy.getRawButton(10)) { 
 				heading = pidgey.getAngle();
-			} else {
+				System.out.println(heading + " - head");
+				double error = 0;
 
-				//Curvature Drive
-				double error  = heading - pidgey.getRate();
-				if (isInverted) {
-						m_drive.curvatureDrive(m_joy.getY() + kP  * error, m_joy.getX() - kP  * error, m_joy.getRawButton(2));
-				} else {
-						m_drive.curvatureDrive(-m_joy.getY() + kP  * error, m_joy.getX() - kP  * error, m_joy.getRawButton(2));
+				if (heading > 0) {
+					error = 0.3;
+				} else if (heading < 0) {
+					error = -0.3;
 				}
+				System.out.println(error + " - eror");
+
+				//double error  = heading;
+				if (isInverted) {
+						m_drive.curvatureDrive(m_joy.getY(), -m_joy.getX() +error  , m_joy.getRawButton(2));
+				} else {
+						m_drive.curvatureDrive(-m_joy.getY(), -m_joy.getX() +error, m_joy.getRawButton(2));
+				}
+				*/
+
+				if (m_joy.getRawButton(10)) { 
+					double turn = 0;
+					double sensitivity = 1;
+					heading = pidgey.getAngle();
+					target_angle += m_joy.getX()*sensitivity;
+					double error = 0;
+					error = heading-target_angle;
+					// turn = error*k;
+					if (error > 15) {
+						turn = 0.3;
+					} else if (error > 5) {
+						turn = 0.1;
+					} else if (error < -15) {
+						turn = -0.3;
+					} else if (error < -5) {
+						turn = 0.1;
+					}
+					
+					//double error  = heading;
+					if (isInverted) {
+							m_drive.curvatureDrive(m_joy.getY(), turn , m_joy.getRawButton(2));
+					} else {
+							m_drive.curvatureDrive(-m_joy.getY(), turn , m_joy.getRawButton(2));
+					}
 			}
 		}
 	}
